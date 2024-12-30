@@ -123,6 +123,8 @@ export class Design {
                 // If we don't have a real-world length, just guess
                 // Instructions say 2540 so go with that
                 this.dpi = 2540
+                pageWidth.newValueSpecifiedUnits(SVGLength.SVG_LENGTHTYPE_IN, viewbox.width/this.dpi)
+                pageHeight.newValueSpecifiedUnits(SVGLength.SVG_LENGTHTYPE_IN, viewbox.height/this.dpi)
                 break;
         }
 
