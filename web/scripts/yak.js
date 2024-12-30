@@ -64,6 +64,16 @@ async function ImageBitmap_from_Blob(blob, width = 1000, context = null) {
 export async function createImageBitmap(image, width = 1000) {
     const context = image;
     if (image instanceof XMLDocument) {
+        // and the code is built assuming that is the case, so we overwrite any
+        // width/height with that so that the code works for SVGs from programs
+        // that actually set a page size (e.g. Inkscape)
+        // 
+        // For the long version, see the message on the commit that added this.
+        const viewbox = image.documentElement.viewBox.baseVal;
+        const aspect = viewbox.height/viewbox.height
+
+        image.documentElement.setAttribute('width', `${width}px`)
+        image.documentElement.setAttribute('height', `${width*aspect}px`)
         image = Blob_from_SVGDocument(image);
     }
 
