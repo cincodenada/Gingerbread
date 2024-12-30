@@ -127,13 +127,16 @@ export class Design {
                 break;
         }
 
-        //pageWidth.newValueSpecifiedUnits(SVGLength.SVG_LENGTHTYPE_PERCENTAGE, 100)
-        //pageHeight.newValueSpecifiedUnits(SVGLength.SVG_LENGTHTYPE_PERCENTAGE, 100)
+        pageWidth.convertToSpecifiedUnits(SVGLength.SVG_LENGTHTYPE_MM)
+        pageHeight.convertToSpecifiedUnits(SVGLength.SVG_LENGTHTYPE_MM)
 
-        this.width_px = viewbox.width;
-        this.height_px = viewbox.height;
-        this.preview_width = Math.max(this.width_px * 0.25, 1024);
-        this.raster_width = this.width_px * 0.5;
+        this.width_uu = viewbox.width
+        this.height_uu = viewbox.height
+
+        // Render at 1mm = 100px, to generalize original behavior
+        const width_px = pageWidth.valueInSpecifiedUnits*100
+        this.preview_width = Math.min(width_px * 0.25, 1024);
+        this.raster_width = width_px * 0.5;
     }
 
     make_layers() {
@@ -164,19 +167,19 @@ export class Design {
     }
 
     get width_mm() {
-        return (this.width_px * this.dpmm).toFixed(2);
+        return (this.width_uu * this.dpmm).toFixed(2);
     }
 
     set width_mm(val) {
-        this.dpmm = val / this.width_px;
+        this.dpmm = val / this.width_uu;
     }
 
     get height_mm() {
-        return (this.height_px * this.dpmm).toFixed(2);
+        return (this.height_uu * this.dpmm).toFixed(2);
     }
 
     set height_mm(val) {
-        this.dpmm = val / this.height_px;
+        this.dpmm = val / this.height_uu;
     }
 
     get output_dpmm() {
@@ -184,7 +187,7 @@ export class Design {
     }
 
     get trace_scale_factor() {
-        return (this.width_px * this.output_dpmm) / this.raster_width;
+        return (this.width_uu * this.output_dpmm) / this.raster_width;
     }
 
     get edge_cuts() {
