@@ -70,10 +70,10 @@ export async function createImageBitmap(image, width = 1000) {
         // 
         // For the long version, see the message on the commit that added this.
         const viewbox = image.documentElement.viewBox.baseVal;
-        const aspect = viewbox.height/viewbox.height
+        const aspect = viewbox.width/viewbox.height
 
         image.documentElement.setAttribute('width', `${width}px`)
-        image.documentElement.setAttribute('height', `${width*aspect}px`)
+        image.documentElement.setAttribute('height', `${width/aspect}px`)
         image = Blob_from_SVGDocument(image);
     }
 
