@@ -84,8 +84,9 @@ export class Design {
         this.svg_template = yak.cloneDocumentRoot(this.svg, "image/svg+xml");
         this._preview_layout = "both";
         this._mask_opacity = 0.9;
-        this.determine_size();
+        this.initialize_dimensions();
         this.make_layers();
+        this.output_dpi = 2540;
 
         const resize_observer = new ResizeObserver(() => {
             this.cvs.resize_to_container();
@@ -94,13 +95,45 @@ export class Design {
         resize_observer.observe(this.cvs.elm);
     }
 
-    determine_size() {
+    initialize_dimensions() {
         const viewbox = this.svg.documentElement.viewBox.baseVal;
-        this.dpi = 2540;
-        this.width_pts = viewbox.width;
-        this.height_pts = viewbox.height;
+
+        const pageWidth = this.svg.documentElement.width.baseVal;
+        const pageHeight = this.svg.documentElement.height.baseVal;
+        // We just use width because the aspect ratios should match,
+        // if not the best we can do is log a warning, really
+        // Use toFixed because I'm scared of floating points
+        const pageAspect = pageWidth.value/pageHeight.value;
+        const viewboxAspect = viewbox.width/viewbox.height;
+        if(pageAspect.toFixed(2) !== viewboxAspect.toFixed(2)) {
+            console.warn("Aspect ratios of page size and viewbox differ! Things will probably look weird!")
+        }
+        console.log(pageWidth)
+        switch(pageWidth.unitType) {
+            case SVGLength.SVG_LENGTHTYPE_IN:
+            case SVGLength.SVG_LENGTHTYPE_MM:
+            case SVGLength.SVG_LENGTHTYPE_CM:
+            case SVGLength.SVG_LENGTHTYPE_PT:
+            case SVGLength.SVG_LENGTHTYPE_PC:
+            case SVGLength.SVG_LENGTHTYPE_PX:
+                pageWidth.convertToSpecifiedUnits(SVGLength.SVG_LENGTHTYPE_IN);
+                this.dpi = (viewbox.width/pageWidth.valueInSpecifiedUnits).toFixed(1);
+                console.log(pageWidth, this.dpi)
+                break;
+            default:
+                // If we don't have a real-world length, just guess
+                // Instructions say 2540 so go with that
+                this.dpi = 2540
+                break;
+        }
+
+        //pageWidth.newValueSpecifiedUnits(SVGLength.SVG_LENGTHTYPE_PERCENTAGE, 100)
+        //pageHeight.newValueSpecifiedUnits(SVGLength.SVG_LENGTHTYPE_PERCENTAGE, 100)
+
+        this.width_px = viewbox.width;
+        this.height_px = viewbox.height;
         this.preview_width = Math.max(this.width_px * 0.25, 1024);
-        this.raster_width = this.width_pts * 0.5;
+        this.raster_width = this.width_px * 0.5;
     }
 
     make_layers() {
@@ -130,24 +163,28 @@ export class Design {
         this.dpi = (25.4 / val).toFixed(1);
     }
 
-    get trace_scale_factor() {
-        return (this.width_pts * this.dpmm) / this.raster_width;
-    }
-
     get width_mm() {
-        return (this.width_pts * this.dpmm).toFixed(2);
+        return (this.width_px * this.dpmm).toFixed(2);
     }
 
     set width_mm(val) {
-        this.dpmm = val / this.width_pts;
+        this.dpmm = val / this.width_px;
     }
 
     get height_mm() {
-        return (this.height_pts * this.dpmm).toFixed(2);
+        return (this.height_px * this.dpmm).toFixed(2);
     }
 
     set height_mm(val) {
-        this.dpmm = val / this.height_pts;
+        this.dpmm = val / this.height_px;
+    }
+
+    get output_dpmm() {
+        return 25.4 / this.output_dpi;
+    }
+
+    get trace_scale_factor() {
+        return (this.width_px * this.output_dpmm) / this.raster_width;
     }
 
     get edge_cuts() {
@@ -282,7 +319,7 @@ export class Design {
                             gingerbread.conversion_add_poly_point(
                                 pt[0],
                                 pt[1],
-                                this.dpmm
+                                this.output_dpmm
                             );
                         }
                         gingerbread.conversion_end_poly(layer.number, 1, false);
@@ -294,7 +331,7 @@ export class Design {
                             circle.cx.baseVal.value,
                             circle.cy.baseVal.value,
                             circle.r.baseVal.value * 2,
-                            this.dpmm
+                            this.output_dpmm
                         );
                     }
                     break;
