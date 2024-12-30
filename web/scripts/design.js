@@ -86,7 +86,6 @@ export class Design {
         this._mask_opacity = 0.9;
         this.initialize_dimensions();
         this.make_layers();
-        this.output_dpi = 2540;
 
         const resize_observer = new ResizeObserver(() => {
             this.cvs.resize_to_container();
@@ -158,36 +157,32 @@ export class Design {
         }
     }
 
-    get dpmm() {
+    get uu_per_mm() {
         return 25.4 / this.dpi;
     }
 
-    set dpmm(val) {
+    set uu_per_mm(val) {
         this.dpi = (25.4 / val).toFixed(1);
     }
 
     get width_mm() {
-        return (this.width_uu * this.dpmm).toFixed(2);
+        return (this.width_uu * this.uu_per_mm).toFixed(2);
     }
 
     set width_mm(val) {
-        this.dpmm = val / this.width_uu;
+        this.uu_per_mm = val / this.width_uu;
     }
 
     get height_mm() {
-        return (this.height_uu * this.dpmm).toFixed(2);
+        return (this.height_uu * this.uu_per_mm).toFixed(2);
     }
 
     set height_mm(val) {
-        this.dpmm = val / this.height_uu;
-    }
-
-    get output_dpmm() {
-        return 25.4 / this.output_dpi;
+        this.uu_per_mm = val / this.height_uu;
     }
 
     get trace_scale_factor() {
-        return (this.width_uu * this.output_dpmm) / this.raster_width;
+        return (this.width_uu * this.uu_per_mm) / this.raster_width;
     }
 
     get edge_cuts() {
@@ -322,7 +317,7 @@ export class Design {
                             gingerbread.conversion_add_poly_point(
                                 pt[0],
                                 pt[1],
-                                this.output_dpmm
+                                this.uu_per_mm
                             );
                         }
                         gingerbread.conversion_end_poly(layer.number, 1, false);
@@ -334,7 +329,7 @@ export class Design {
                             circle.cx.baseVal.value,
                             circle.cy.baseVal.value,
                             circle.r.baseVal.value * 2,
-                            this.output_dpmm
+                            this.uu_per_mm
                         );
                     }
                     break;
