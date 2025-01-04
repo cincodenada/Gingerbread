@@ -12,7 +12,7 @@ describe('Exporter', function() {
         );
 
         const design = new Design(cvs, svg_doc);
-        await design.export('download');
+        const footprint = await design.generate_footprint();
 
         assert(true);
     })

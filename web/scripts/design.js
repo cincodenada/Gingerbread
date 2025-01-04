@@ -258,7 +258,7 @@ export class Design {
         return layer.visible;
     }
 
-    async export(method) {
+    async generate_footprint() {
         const gingerbread = await LibGingerbread.new();
         console.log(gingerbread);
 
@@ -303,14 +303,7 @@ export class Design {
             }
         }
 
-        const footprint = gingerbread.conversion_finish();
-
-        if (method == "clipboard") {
-            navigator.clipboard.writeText(footprint);
-        } else {
-            let file = new File([footprint], "design.kicad_pcb");
-            yak.initiateDownload(file);
-        }
+        return gingerbread.conversion_finish();
     }
 }
 
