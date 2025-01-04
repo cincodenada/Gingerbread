@@ -1,6 +1,8 @@
 import { Design } from "../design.js";
 import { PreviewCanvas } from "../preview-canvas.js";
 
+const { expect } = chai;
+
 describe('Exporter', function() {
     this.timeout(30000)
     it('Should export the weasel design as expected', async function() {
@@ -11,9 +13,13 @@ describe('Exporter', function() {
             "image/svg+xml"
         );
 
+        console.log(svg_doc)
+
+        const expectedPromise = fetch('scripts/tests/weasel.kicad_pcb').then(resp => resp.text())
         const design = new Design(cvs, svg_doc);
         const footprint = await design.generate_footprint();
+        console.log(footprint);
 
-        assert(true);
+        expect(footprint).to.equal(await expectedPromise);
     })
 })
