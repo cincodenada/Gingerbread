@@ -99,7 +99,7 @@ export class Design {
         this.dpi = 2540;
         this.width_pts = viewbox.width;
         this.height_pts = viewbox.height;
-        this.preview_width = Math.min(this.width_pts * 0.25, 1024);
+        this.preview_width = Math.max(this.width_px * 0.25, 1024);
         this.raster_width = this.width_pts * 0.5;
     }
 
@@ -352,7 +352,7 @@ export class Layer {
         if (!this.bitmap) {
             this.bitmap = await yak.createImageBitmap(
                 this.svg,
-                this.design.constructor.preview_width
+                this.design.preview_width
             );
             if (this.is_mask) {
                 this.bitmap = await yak.ImageBitmap_inverse_mask(
