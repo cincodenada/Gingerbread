@@ -23,7 +23,7 @@ def make_output_dirs():
 
 
 def copy_resources():
-    for name in ("images", "scripts", "styles", "favicon.ico"):
+    for name in ("images", "scripts", "scripts/tests", "styles", "favicon.ico"):
         src = WEB / name
         dest = BUILD / src.relative_to(WEB)
 

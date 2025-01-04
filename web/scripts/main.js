@@ -1,3 +1,4 @@
+import { initiateDownload } from "./yak.js";
 import { Design, Layer } from "./design.js";
 import { PreviewCanvas } from "./preview-canvas.js";
 import { DropTarget } from "./dragdrop.js";
@@ -52,7 +53,13 @@ document.addEventListener("alpine:init", () => {
         exporting: false,
         async export_design(method) {
             this.exporting = true;
-            await this.design.export(method);
+            const footprint = await this.design.generate_footprint();
+            if (method == "clipboard") {
+                navigator.clipboard.writeText(footprint);
+            } else {
+                let file = new File([footprint], "design.kicad_pcb");
+                initiateDownload(file);
+            }
             this.exporting = 'done';
             window.setTimeout(() => {
                 this.exporting = false;
