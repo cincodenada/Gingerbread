@@ -1,3 +1,5 @@
+import './path-data-polyfill.js'
+
 /* Converts an SVGDocument to a Blob. */
 function Blob_from_SVGDocument(svg_doc) {
     return new Blob([new XMLSerializer().serializeToString(svg_doc)], {
