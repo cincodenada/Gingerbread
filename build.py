@@ -22,13 +22,9 @@ RESOURCES = [
     "styles",
     "favicon.ico",
 ]
-EXCLUDE_PAGES = [
-    "test.html",
-]
 
 if(args.tests):
-    RESOURCES.append("scripts/tests")
-    EXCLUDE_PAGES = []
+    RESOURCES.append("tests")
 
 JINJA_ENV = jinja2.Environment(
     loader=jinja2.FileSystemLoader(WEB),
@@ -57,14 +53,10 @@ def build_pages():
     pages = WEB.glob("*.html")
     for page in pages:
         dest = BUILD / page.relative_to(WEB)
-        relpath = dest.relative_to(BUILD)
-        if str(relpath) in EXCLUDE_PAGES:
-            continue
-
         template = JINJA_ENV.get_template(str(page.relative_to(WEB)))
         rendered = template.render()
         dest.write_text(rendered)
-        print(f"Rendered {relpath}")
+        print(f"Rendered {dest.relative_to(BUILD)}")
 
 
 def copy_native():
